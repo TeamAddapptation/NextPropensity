@@ -6,7 +6,7 @@ async function getCampaigns() {
 	return data;
 }
 
-export default async function Audiuences() {
+export default async function Campaigns() {
 	const campaigns = await getCampaigns();
 	return (
 		<div>

@@ -1,10 +1,14 @@
 "use client";
-import { useReactTable, getCoreRowModel, flexRender } from "@tanstack/react-table";
-import { useMemo } from "react";
+import { useReactTable, getCoreRowModel, flexRender, getPaginationRowModel, getSortedRowModel } from "@tanstack/react-table";
+import { useMemo, useState } from "react";
 import Link from "next/link";
+import TablePagination from "./Pagination";
+import { ArrowUp, ArrowDown } from "react-bootstrap-icons";
 
 function CampaignsTable({ campaignData }) {
 	console.log("Table: ", campaignData);
+
+	const [sorting, setSorting] = useState([]);
 
 	const data = useMemo(() => campaignData, [campaignData]);
 
@@ -28,7 +32,7 @@ function CampaignsTable({ campaignData }) {
 		},
 	];
 
-	const table = useReactTable({ data, columns, getCoreRowModel: getCoreRowModel() });
+	const table = useReactTable({ data, columns, getCoreRowModel: getCoreRowModel(), getPaginationRowModel: getPaginationRowModel(), getSortedRowModel: getSortedRowModel(), state: { sorting: sorting }, onSortingChange: setSorting });
 
 	return (
 		<div className='table-responsive'>
@@ -37,7 +41,10 @@ function CampaignsTable({ campaignData }) {
 					{table.getHeaderGroups().map((headerGroup) => (
 						<tr key={headerGroup.id} className="className='text-start text-muted fw-bolder fs-7 text-uppercase gs-0'">
 							{headerGroup.headers.map((header) => (
-								<th key={header.id}>{flexRender(header.column.columnDef.header, header.getContext())}</th>
+								<th key={header.id} onClick={header.column.getToggleSortingHandler()}>
+									{flexRender(header.column.columnDef.header, header.getContext())}
+									{{ asc: <ArrowUp />, desc: <ArrowDown /> }[header.column.getIsSorted() ?? null]}
+								</th>
 							))}
 						</tr>
 					))}
@@ -52,6 +59,10 @@ function CampaignsTable({ campaignData }) {
 					))}
 				</tbody>
 			</table>
+			<TablePagination table={table} />
+			<strong>
+				{table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
+			</strong>
 		</div>
 	);
 }
