@@ -10,7 +10,6 @@ export default async function Campaigns() {
 	const campaigns = await getCampaigns();
 	return (
 		<div>
-			<h1>Audiences</h1>
 			<CampaignsTable campaignData={campaigns} />
 		</div>
 	);

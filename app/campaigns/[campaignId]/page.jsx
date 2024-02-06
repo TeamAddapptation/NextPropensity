@@ -1,4 +1,5 @@
 import CampaignHeader from "@/app/components/CampaignHeader";
+import PlaysTable from "./playsTable";
 
 async function getCampaign(id) {
 	const res = await fetch(`https://t-propensity-dashboard.addapptation.com/account_lists_data?api_key=6d5b9cb6-d85e-43c8-a892-b9c18dd77bac&campaign=true&campaign_id=${id}`);
@@ -7,10 +8,10 @@ async function getCampaign(id) {
 }
 export default async function Campaign({ params }) {
 	const campaignData = await getCampaign(params.campaignId);
-	console.log("Data: ", campaignData);
 	return (
 		<div className='p-3'>
 			<CampaignHeader campaign={campaignData[0]} />
+			<PlaysTable campaign={campaignData[0]} />
 		</div>
 	);
 }
