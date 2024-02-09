@@ -10,7 +10,6 @@ function classNames(...classes) {
 }
 
 export default function EditSidepane({ open, setOpen, play }) {
-	console.log("Play Data:", play);
 	return (
 		<Transition.Root show={open} as={Fragment}>
 			<Dialog as='div' className='relative z-10' onClose={setOpen}>
@@ -44,12 +43,12 @@ export default function EditSidepane({ open, setOpen, play }) {
 														<div className='sm:flex-1'>
 															<div>
 																<div className='flex items-center'>
-																	<h3 className='text-xl font-bold text-gray-900 sm:text-2xl'>{play.Name}</h3>
+																	<h3 className='text-xl font-bold text-gray-900 sm:text-2xl'>{play.name}</h3>
 																	<span className='ml-2.5 inline-block h-2 w-2 flex-shrink-0 rounded-full bg-green-400'>
 																		<span className='sr-only'></span>
 																	</span>
 																</div>
-																<p className='text-sm text-gray-500'>{play.Type__c}</p>
+																<p className='text-sm text-gray-500'>{play.type}</p>
 															</div>
 															<div className='mt-5 flex flex-wrap space-y-3 sm:space-x-3 sm:space-y-0'>
 																<button type='button' className='inline-flex w-full flex-shrink-0 items-center justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 sm:flex-1'>
@@ -106,7 +105,7 @@ export default function EditSidepane({ open, setOpen, play }) {
 													</div>
 													<div>
 														<dt className='text-sm font-medium text-gray-500 sm:w-40 sm:flex-shrink-0'>Body</dt>
-														<dd className='mt-1 text-sm text-gray-900 sm:col-span-2' dangerouslySetInnerHTML={{ __html: play.body }}></dd>
+														<dd className='mt-1 text-sm text-gray-900 sm:col-span-2' dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(play.body) }}></dd>
 													</div>
 													<div>
 														<dt className='text-sm font-medium text-gray-500 sm:w-40 sm:flex-shrink-0'>Birthday</dt>

@@ -7,7 +7,7 @@ import Breadcrumbs from "./Breadcrumbs";
 
 const path = [
 	{ name: "Campaigns", href: "#", current: false },
-	{ name: "Details", href: "#", current: true },
+	{ name: "Plays", href: "#", current: true },
 ];
 
 export default function CampaignHeader({ campaignData }) {

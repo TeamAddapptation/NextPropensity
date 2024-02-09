@@ -5,7 +5,6 @@ import Link from "next/link";
 import { ArrowUp, ArrowDown } from "react-bootstrap-icons";
 
 function PlaysTable({ plays, onEdit }) {
-	console.log("Table Plays: ", plays);
 	const [sorting, setSorting] = useState([]);
 	const data = useMemo(() => plays, [plays]);
 
@@ -52,7 +51,7 @@ function PlaysTable({ plays, onEdit }) {
 			accessorFn: (row) => ({ start: row.planned_start, end: row.planned_end }),
 			cell: (info) => (
 				<div className='flex'>
-					<div className='font-medium text-gray-900'>{info.getValue().start}</div> - <div className='font-medium text-gray-900'>{info.getValue().end ? info.getValue().end : "N/A"}</div>
+					<div className='font-medium text-gray-900'>{info.getValue().start ? info.getValue().start : "N/A"}</div> - <div className='font-medium text-gray-900'>{info.getValue().end ? info.getValue().end : "N/A"}</div>
 				</div>
 			),
 		},
@@ -65,13 +64,16 @@ function PlaysTable({ plays, onEdit }) {
 			header: "Actions",
 			id: "actions",
 			classes: "flex justify-center",
+			size: 150,
 			cell: ({ row }) => (
 				<div className='flex justify-around'>
 					{/* Example buttons */}
-					<button className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-2 rounded' onClick={() => onEdit(row.original)}>
+					<button type='button' onClick={() => onEdit(row.original)} className='rounded bg-indigo-600 px-2 py-1 text-xs font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600'>
 						Edit
 					</button>
-					<button className='bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-2 rounded'>Delete</button>
+					<button type='button' className='rounded bg-white px-2 py-1 text-xs font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50'>
+						Delete
+					</button>
 				</div>
 			),
 		},
