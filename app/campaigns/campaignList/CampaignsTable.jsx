@@ -1,5 +1,5 @@
 "use client";
-import { useReactTable, getCoreRowModel, flexRender, getPaginationRowModel, getSortedRowModel } from "@tanstack/react-table";
+import { useReactTable, getCoreRowModel, flexRender, getPaginationRowModel, getSortedRowModel, Pagination } from "@tanstack/react-table";
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import TablePagination from "./Pagination";
@@ -7,15 +7,18 @@ import { ArrowUp, ArrowDown } from "react-bootstrap-icons";
 
 function CampaignsTable({ campaignData }) {
 	const [sorting, setSorting] = useState([]);
+	const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 50 });
 
 	const data = useMemo(() => campaignData, [campaignData]);
+
+	console.log("Campaigns", campaignData);
 
 	const columns = [
 		{
 			header: "Name",
 			accessorKey: "name",
 			cell: (info) => (
-				<Link className='text-blue-600 visited:text-purple-600' href={`/campaigns/${info.row.original.id}`}>
+				<Link className='text-blue-600 visited:text-purple-600' href={`/campaigns/${info.row.original.id}/details`}>
 					{info.getValue()}
 				</Link>
 			),
@@ -28,12 +31,11 @@ function CampaignsTable({ campaignData }) {
 			header: "Status",
 			accessorKey: "status",
 			classes: "flex justify-center items-center",
-			side: 20,
 			cell: (info) => (info.getValue() == "Inactive" ? <span className='inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-700 ring-1 ring-inset ring-gray-600/20'>Inactive</span> : <span className='inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20'>Active</span>),
 		},
 	];
 
-	const table = useReactTable({ data, columns, getCoreRowModel: getCoreRowModel(), getPaginationRowModel: getPaginationRowModel(), getSortedRowModel: getSortedRowModel(), state: { sorting: sorting }, onSortingChange: setSorting });
+	const table = useReactTable({ data, columns, getCoreRowModel: getCoreRowModel(), getPaginationRowModel: getPaginationRowModel(), getSortedRowModel: getSortedRowModel(), state: { sorting, pagination }, onSortingChange: setSorting, onPaginationChange: setPagination });
 
 	console.log(table.getHeaderGroups());
 
@@ -80,6 +82,7 @@ function CampaignsTable({ campaignData }) {
 										))}
 									</tbody>
 								</table>
+								<TablePagination table={table} />
 							</div>
 						</div>
 					</div>

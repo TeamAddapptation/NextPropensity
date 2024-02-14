@@ -1,7 +1,6 @@
 "use client";
 import { useReactTable, getCoreRowModel, flexRender, getPaginationRowModel, getSortedRowModel } from "@tanstack/react-table";
 import { useMemo, useState } from "react";
-import Link from "next/link";
 import { ArrowUp, ArrowDown } from "react-bootstrap-icons";
 
 function PlaysTable({ plays, onEdit }) {

@@ -2,7 +2,6 @@
 import { PhotoIcon, UserCircleIcon } from "@heroicons/react/24/solid";
 
 export default function PlayEdit({ params }) {
-	console.log(params.campaignId);
 	return (
 		<form>
 			<div className='space-y-12'>

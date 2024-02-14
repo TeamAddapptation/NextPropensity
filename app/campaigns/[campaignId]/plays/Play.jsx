@@ -1,7 +1,6 @@
 import { PaperClipIcon } from "@heroicons/react/20/solid";
 
 export default function Play({ play }) {
-	console.log("Play Data: ", play);
 	return (
 		<>
 			<div className='overflow-hidden bg-white shadow sm:rounded-lg'>

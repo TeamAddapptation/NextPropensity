@@ -1,6 +1,6 @@
 import axios from "axios";
 
-export default async function handler(req, res) {
+export default async function campaignData(req, res) {
 	try {
 		const response = await axios.get("https://t-propensity-dashboard.addapptation.com/account_lists_data", {
 			params: {
@@ -9,6 +9,7 @@ export default async function handler(req, res) {
 				campaign_id: "a2KJw000001mfujMAA",
 			},
 		});
+
 		res.status(200).json(response.data);
 	} catch (error) {
 		console.error("Error fetching data:", error);
