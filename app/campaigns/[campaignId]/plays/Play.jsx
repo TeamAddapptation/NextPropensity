@@ -1,77 +1,88 @@
-import { PaperClipIcon } from "@heroicons/react/20/solid";
+"use client";
+import { useEffect, useState } from "react";
 
-export default function Play({ play }) {
+import { PaperClipIcon } from "@heroicons/react/20/solid";
+import Checklist from "./components/Checklist";
+import { facebook } from "./playData/checklistData";
+import { adFields } from "./playData/playFields";
+import FieldView from "./components/FieldView";
+import FieldEdit from "./components/FieldEdit";
+
+export default function Play({ play, selectPlay }) {
+	const [playFields, setPlayFields] = useState(null);
+	const [editMode, setEditMode] = useState(false);
+	useEffect(() => {
+		switch (play.type) {
+			case "Facebook Ad":
+				setPlayFields(adFields.facebook);
+				break;
+			case "LinkedIn Ad":
+				setPlayFields(adFields.linkedin);
+				break;
+			case "Marketing Email":
+				setPlayFields(adFields.marketingEmail);
+				break;
+			default:
+				setPlayFields(null);
+		}
+	}, [play, playFields]);
+
+	console.log(playFields);
+
 	return (
 		<>
-			<div className='overflow-hidden bg-white shadow sm:rounded-lg'>
-				<div className='flex px-4 py-6 sm:px-6 sm:items-center sm:justify-between'>
-					<div className='flex flex-col'>
-						<p className='mt-1 max-w-2xl text-sm leading-6 text-gray-500'>{play.type}</p>
-						<h3 className='text-base font-semibold leading-7 text-gray-900'>{play.name}</h3>
-					</div>
-					<div className='mt-3 flex sm:ml-4 sm:mt-0'>
-						<button type='button' className='inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50'>
-							Share
-						</button>
-						<button type='button' className='ml-3 inline-flex items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600'>
-							Create
-						</button>
+			<div className='flex mb-4 gap-5'>
+				<div className='w-2/5 flex flex-col gap-5'>
+					<div className='divide-y divide-gray-200 rounded-lg bg-white shadow'>
+						<div className='flex justify-between items-center px-4 py-5 sm:px-6'>
+							<div>
+								<p className='mt-1 max-w-2xl text-sm leading-6 text-gray-500'>{play.type}</p>
+								<h3 className='text-xl font-semibold leading-6 text-gray-900'>{play.name}</h3>
+							</div>
+							<button
+								type='button'
+								onClick={() => setEditMode(true)}
+								className='inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50'
+							>
+								Edit
+							</button>
+						</div>
+						{editMode ? (
+							playFields && playFields.editFields ? (
+								<FieldEdit fields={playFields.editFields} play={play} />
+							) : (
+								"Loading..."
+							)
+						) : playFields && playFields.fields ? (
+							<FieldView fields={playFields.fields} play={play} />
+						) : (
+							"Loading..."
+						)}
 					</div>
 				</div>
-				<div className='border-t border-gray-100'>
-					<dl className='divide-y divide-gray-100'>
-						<div className='px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6'>
-							<dt className='text-sm font-medium text-gray-900'>Start Date</dt>
-							<dd className='mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0'>{play.planned_start ? play.planned_start : "-"}</dd>
+				<div className='w-2/5 flex flex-col gap-5'></div>
+				<div className='w-1/5 flex flex-col gap-5'>
+					<div className='divide-y divide-gray-200 rounded-lg bg-white shadow'>
+						<div className='flex-col px-4 py-5 sm:px-6'>
+							<span className='inline-flex items-center gap-x-1.5 rounded-md bg-red-100 px-1.5 py-0.5 text-xs font-medium text-red-700 mb-1'>
+								<svg className='h-1.5 w-1.5 fill-red-500' viewBox='0 0 6 6' aria-hidden='true'>
+									<circle cx={3} cy={3} r={3} />
+								</svg>
+								Missing Assests
+							</span>
+							<div>
+								<h3 className='text-xl font-semibold leading-6 text-gray-900'>Pre-Launch Checklist</h3>
+							</div>
 						</div>
-						<div className='px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6'>
-							<dt className='text-sm font-medium text-gray-900'>End Date</dt>
-							<dd className='mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0'>{play.planned_end ? play.planned_end : "-"}</dd>
+						<div className='border-t border-gray-100 px-4 py-5 sm:px-6'>
+							<div>
+								<div className='flex-col pb-5'>
+									<h3 className='text-m font-semibold leading-6 text-gray-900'>Setup</h3>
+								</div>
+								<Checklist play={play} adChecks={facebook} />
+							</div>
 						</div>
-						<div className='px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6'>
-							<dt className='text-sm font-medium text-gray-900'>Subject</dt>
-							<dd className='mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0'>{play.subject ? play.subject : "-"}</dd>
-						</div>
-						<div className='px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6'>
-							<dt className='text-sm font-medium text-gray-900'>Body</dt>
-							<dd className='mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0'>{play.body ? play.body : "-"}</dd>
-						</div>
-						<div className='px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6'>
-							<dt className='text-sm font-medium leading-6 text-gray-900'>Attachments</dt>
-							<dd className='mt-2 text-sm text-gray-900 sm:col-span-2 sm:mt-0'>
-								<ul role='list' className='divide-y divide-gray-100 rounded-md border border-gray-200'>
-									<li className='flex items-center justify-between py-4 pl-4 pr-5 text-sm leading-6'>
-										<div className='flex w-0 flex-1 items-center'>
-											<PaperClipIcon className='h-5 w-5 flex-shrink-0 text-gray-400' aria-hidden='true' />
-											<div className='ml-4 flex min-w-0 flex-1 gap-2'>
-												<span className='truncate font-medium'>resume_back_end_developer.pdf</span>
-												<span className='flex-shrink-0 text-gray-400'>2.4mb</span>
-											</div>
-										</div>
-										<div className='ml-4 flex-shrink-0'>
-											<a href='#' className='font-medium text-indigo-600 hover:text-indigo-500'>
-												Download
-											</a>
-										</div>
-									</li>
-									<li className='flex items-center justify-between py-4 pl-4 pr-5 text-sm leading-6'>
-										<div className='flex w-0 flex-1 items-center'>
-											<PaperClipIcon className='h-5 w-5 flex-shrink-0 text-gray-400' aria-hidden='true' />
-											<div className='ml-4 flex min-w-0 flex-1 gap-2'>
-												<span className='truncate font-medium'>coverletter_back_end_developer.pdf</span>
-												<span className='flex-shrink-0 text-gray-400'>4.5mb</span>
-											</div>
-										</div>
-										<div className='ml-4 flex-shrink-0'>
-											<a href='#' className='font-medium text-indigo-600 hover:text-indigo-500'>
-												Download
-											</a>
-										</div>
-									</li>
-								</ul>
-							</dd>
-						</div>
-					</dl>
+					</div>
 				</div>
 			</div>
 		</>

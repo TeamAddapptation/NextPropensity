@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Breadcrumbs from "../../components/Breadcrumbs";
 import CampaignTabs from "./CampaignTabs";
+import { usePathname } from "next/navigation";
 
 const path = [
 	{ name: "Campaigns", href: "#", current: false },
@@ -10,8 +11,10 @@ const path = [
 ];
 
 export default function CampaignHeader({ campaignData, campaignId }) {
+	const urlPath = usePathname();
+
 	return (
-		<div className='lg:flex lg:items-center lg:justify-between mb-5 pb-5 rounded-lg bg-white shadow px-5 py-5'>
+		<div className='lg:flex lg:justify-between border-b mb-5 pb-5  px-5 py-5'>
 			<div className='min-w-0 flex-1'>
 				<Breadcrumbs pages={path} />
 				<h2 className='mt-2 text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight'>{campaignData.Name}</h2>
@@ -26,11 +29,11 @@ export default function CampaignHeader({ campaignData, campaignId }) {
 					</div>
 					<div className='mt-2 flex items-center text-sm text-gray-500 gap-1'>
 						<h5 className='text-sm font-semibold leading-6 text-gray-900'>Cohort</h5>
-						{campaignData.Cohort_Number__c}
+						{campaignData.Cohort_Number__c} / 4
 					</div>
 				</div>
 			</div>
-			<div className='mt-5 flex flex-col justify-center items-end lg:ml-4 lg:mt-0'>
+			<div className='mt-5 flex flex-col justify-between items-end lg:ml-4 lg:mt-0'>
 				<div className='flex'>
 					<span className='hidden sm:block'>
 						<button type='button' className='inline-flex items-center rounded-md bg-white px-3 py-2 text-xs font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50'>

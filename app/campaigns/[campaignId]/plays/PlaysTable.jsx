@@ -2,8 +2,9 @@
 import { useReactTable, getCoreRowModel, flexRender, getPaginationRowModel, getSortedRowModel } from "@tanstack/react-table";
 import { useMemo, useState } from "react";
 import { ArrowUp, ArrowDown } from "react-bootstrap-icons";
+import { formatDate } from "@/app/utilities/helpers";
 
-function PlaysTable({ plays, onEdit }) {
+function PlaysTable({ plays, selectPlay, editMode }) {
 	const [sorting, setSorting] = useState([]);
 	const data = useMemo(() => plays, [plays]);
 
@@ -50,7 +51,9 @@ function PlaysTable({ plays, onEdit }) {
 			accessorFn: (row) => ({ start: row.planned_start, end: row.planned_end }),
 			cell: (info) => (
 				<div className='flex'>
-					<div className='font-medium text-gray-900'>{info.getValue().start ? info.getValue().start : "N/A"}</div> - <div className='font-medium text-gray-900'>{info.getValue().end ? info.getValue().end : "N/A"}</div>
+					<div className='font-medium text-gray-500'>{info.getValue().start ? formatDate(info.getValue().start) : "N/A"}</div>
+					<span className='px-2'> - </span>
+					<div className='font-medium text-gray-500'>{info.getValue().end ? formatDate(info.getValue().end) : "N/A"}</div>
 				</div>
 			),
 		},
@@ -65,9 +68,13 @@ function PlaysTable({ plays, onEdit }) {
 			classes: "flex justify-center",
 			size: 150,
 			cell: ({ row }) => (
-				<div className='flex justify-around'>
+				<div className='flex justify-center gap-2'>
 					{/* Example buttons */}
-					<button type='button' onClick={() => onEdit(row.original)} className='rounded bg-indigo-600 px-2 py-1 text-xs font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600'>
+					<button
+						type='button'
+						onClick={() => selectPlay(row.original, true)}
+						className='rounded bg-indigo-600 px-2 py-1 text-xs font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600'
+					>
 						Edit
 					</button>
 					<button type='button' className='rounded bg-white px-2 py-1 text-xs font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50'>
@@ -78,7 +85,15 @@ function PlaysTable({ plays, onEdit }) {
 		},
 	];
 
-	const table = useReactTable({ data, columns, getCoreRowModel: getCoreRowModel(), getPaginationRowModel: getPaginationRowModel(), getSortedRowModel: getSortedRowModel(), state: { sorting: sorting }, onSortingChange: setSorting });
+	const table = useReactTable({
+		data,
+		columns,
+		getCoreRowModel: getCoreRowModel(),
+		getPaginationRowModel: getPaginationRowModel(),
+		getSortedRowModel: getSortedRowModel(),
+		state: { sorting: sorting },
+		onSortingChange: setSorting,
+	});
 
 	return (
 		<>
@@ -88,7 +103,10 @@ function PlaysTable({ plays, onEdit }) {
 						<h1 className='font-semibold leading-6 text-gray-900'>Campaign Plays</h1>
 					</div>
 					<div className='mt-4 sm:ml-16 sm:mt-0 sm:flex-none'>
-						<button type='button' className='block rounded-md bg-indigo-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600'>
+						<button
+							type='button'
+							className='block rounded-md bg-indigo-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600'
+						>
 							Add Play
 						</button>
 					</div>
@@ -102,7 +120,12 @@ function PlaysTable({ plays, onEdit }) {
 										{table.getHeaderGroups().map((headerGroup) => (
 											<tr key={headerGroup.id}>
 												{headerGroup.headers.map((header) => (
-													<th scope='col' className={`py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6 ${header.column.columnDef.classes}`} key={header.id} onClick={header.column.getToggleSortingHandler()}>
+													<th
+														scope='col'
+														className={`py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6 ${header.column.columnDef.classes}`}
+														key={header.id}
+														onClick={header.column.getToggleSortingHandler()}
+													>
 														{flexRender(header.column.columnDef.header, header.getContext())}
 														{{ asc: <ArrowUp />, desc: <ArrowDown /> }[header.column.getIsSorted() ?? null]}
 													</th>

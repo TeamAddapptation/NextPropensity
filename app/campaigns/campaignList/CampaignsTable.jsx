@@ -18,7 +18,7 @@ function CampaignsTable({ campaignData }) {
 			header: "Name",
 			accessorKey: "name",
 			cell: (info) => (
-				<Link className='text-blue-600 visited:text-purple-600' href={`/campaigns/${info.row.original.id}/details`}>
+				<Link className='text-blue-600 visited:text-purple-600' href={`/campaigns/${info.row.original.id}`}>
 					{info.getValue()}
 				</Link>
 			),

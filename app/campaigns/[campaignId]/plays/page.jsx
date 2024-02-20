@@ -1,12 +1,12 @@
 import React from "react";
 import { getCampaignData } from "@/app/utilities/CampaignData";
-import PlaysTable from "./playsTable";
+import PlaysLayout from "./PlaysLayout";
 
 async function page({ params }) {
 	const campaignObj = await getCampaignData(params.campaignId);
 	return (
 		<div>
-			<PlaysTable plays={campaignObj.plays} />
+			<PlaysLayout plays={campaignObj.plays} />
 		</div>
 	);
 }

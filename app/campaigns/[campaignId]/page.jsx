@@ -2,9 +2,12 @@ import { getCampaignData } from "@/app/utilities/CampaignData";
 import CohortHistory from "../components/CohortHistory";
 import ConnectedAudience from "../components/ConnnectedAudience";
 import ConnectedBuyingCircles from "../components/ConnectedBuyingCircles";
+import Loading from "@/app/loading";
 
 export default async function Campaign({ params }) {
 	const campaignObj = await getCampaignData(params.campaignId);
+
+	if (campaignObj && campaignObj.length == 0) return <Loading />;
 	return (
 		<div>
 			<div className='flex mb-4 gap-5'>

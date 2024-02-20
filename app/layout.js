@@ -14,7 +14,7 @@ export default function RootLayout({ children }) {
 		<html lang='en' className='h-full'>
 			<body className={`bg-slate-50 ${inter.className}`}>
 				<SidebarNav />
-				<main className='py-10 lg:pl-72'>
+				<main className='py-10 lg:pl-64'>
 					<div className='px-4 sm:px-6 lg:px-8'>{children}</div>
 				</main>
 			</body>
