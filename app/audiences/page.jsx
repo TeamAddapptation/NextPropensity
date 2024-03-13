@@ -6,7 +6,6 @@ async function getAudiences() {
 
 export default async function Audiuences() {
 	const audiences = await getAudiences();
-	console.log(audiences);
 	return (
 		<div>
 			<h1>Audiences</h1>

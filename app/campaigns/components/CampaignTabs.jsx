@@ -19,7 +19,6 @@ export default function CampaignTabs({ campaignId }) {
 
 	const handleTabClick = (tabName) => {
 		setCurrentTab(tabName);
-		console.log("Tab: ", currentTab);
 	};
 
 	return (

@@ -3,7 +3,7 @@ import { useState } from "react";
 import PlaysTable from "./PlaysTable";
 import Play from "./Play";
 
-export default function PlaysLayout({ plays }) {
+export default function PlaysLayout({ plays, campaignId }) {
 	const [selectedPlay, setSelectedPlay] = useState(null);
 	const [edit, setEdit] = useState(false);
 
@@ -12,5 +12,5 @@ export default function PlaysLayout({ plays }) {
 		setEdit(isEditMode);
 	}
 
-	return <div>{edit ? <Play play={selectedPlay} selectPlay={selectPlay} /> : <PlaysTable selectPlay={selectPlay} plays={plays} />}</div>;
+	return <div>{edit ? <Play play={selectedPlay} selectPlay={selectPlay} campaignId={campaignId} /> : <PlaysTable selectPlay={selectPlay} plays={plays} />}</div>;
 }

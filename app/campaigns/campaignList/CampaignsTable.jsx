@@ -11,8 +11,6 @@ function CampaignsTable({ campaignData }) {
 
 	const data = useMemo(() => campaignData, [campaignData]);
 
-	console.log("Campaigns", campaignData);
-
 	const columns = [
 		{
 			header: "Name",
@@ -31,13 +29,25 @@ function CampaignsTable({ campaignData }) {
 			header: "Status",
 			accessorKey: "status",
 			classes: "flex justify-center items-center",
-			cell: (info) => (info.getValue() == "Inactive" ? <span className='inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-700 ring-1 ring-inset ring-gray-600/20'>Inactive</span> : <span className='inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20'>Active</span>),
+			cell: (info) =>
+				info.getValue() == "Inactive" ? (
+					<span className='inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-700 ring-1 ring-inset ring-gray-600/20'>Inactive</span>
+				) : (
+					<span className='inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20'>Active</span>
+				),
 		},
 	];
 
-	const table = useReactTable({ data, columns, getCoreRowModel: getCoreRowModel(), getPaginationRowModel: getPaginationRowModel(), getSortedRowModel: getSortedRowModel(), state: { sorting, pagination }, onSortingChange: setSorting, onPaginationChange: setPagination });
-
-	console.log(table.getHeaderGroups());
+	const table = useReactTable({
+		data,
+		columns,
+		getCoreRowModel: getCoreRowModel(),
+		getPaginationRowModel: getPaginationRowModel(),
+		getSortedRowModel: getSortedRowModel(),
+		state: { sorting, pagination },
+		onSortingChange: setSorting,
+		onPaginationChange: setPagination,
+	});
 
 	return (
 		<>
@@ -48,7 +58,10 @@ function CampaignsTable({ campaignData }) {
 						<p className='mt-2 text-sm text-gray-700'>A list of all the users in your account including their name, title, email and role.</p>
 					</div>
 					<div className='mt-4 sm:ml-16 sm:mt-0 sm:flex-none'>
-						<button type='button' className='block rounded-md bg-indigo-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600'>
+						<button
+							type='button'
+							className='block rounded-md bg-indigo-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600'
+						>
 							New Campaign
 						</button>
 					</div>
@@ -62,7 +75,12 @@ function CampaignsTable({ campaignData }) {
 										{table.getHeaderGroups().map((headerGroup) => (
 											<tr key={headerGroup.id}>
 												{headerGroup.headers.map((header) => (
-													<th scope='col' className={`py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6 ${header.column.columnDef.classes}`} key={header.id} onClick={header.column.getToggleSortingHandler()}>
+													<th
+														scope='col'
+														className={`py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6 ${header.column.columnDef.classes}`}
+														key={header.id}
+														onClick={header.column.getToggleSortingHandler()}
+													>
 														{flexRender(header.column.columnDef.header, header.getContext())}
 														{{ asc: <ArrowUp />, desc: <ArrowDown /> }[header.column.getIsSorted() ?? null]}
 													</th>

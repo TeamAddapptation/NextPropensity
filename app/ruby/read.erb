@@ -1,0 +1,362 @@
+addapptation_user = "jason@propensity.com"
+current_user_id = "a0S8W00000bbEFNUA2"
+current_user_org_id = "a0TJw0000016PJkMAM"
+#-------------------------------------
+# All In-Market Account lists
+#-------------------------------------
+if params[:all_lists].present?
+  where = "WHERE ((Email__c = '#{addapptation_user}' AND Workspace__c = null) OR Additional_Emails__c LIKE '%#{current_user_id}%' OR (User__c = '#{current_user_id}' AND Workspace__c = null) OR (User__c = '#{current_user_id}' AND Workspace__c = '#{current_user_org_id}') OR (Workspace__c = '#{current_user_org_id}' AND Private__c = false))"
+  assessments = a__query("Select Id, Name, Accounts_Found__c, Name__c, CreatedDate,
+                        Adjacent_Topics__c, Audience_Roles__c, Company_Name__c, Competitive_Topics__c, Contact__c, Digital_Marketing__c,
+                        Email__c, First_Name__c, Growth_Rate__c, Job_Titles__c, Last_Enriched__c, Last_Name__c, Min_Time_In_Business__c, Qualifying_Leads__c,
+                        Social_Media_Activity__c, Target_Company_Revenue__c, Target_Company_Size__c, Target_Country__c, Target_Industry__c, Using_Intent_Data__c,
+                        (SELECT Id FROM Propensity_ABM_Campaigns__r),
+                        (SELECT Id, Name, List_Name__c, LastModifiedDate, Total__c, Enriched__c, Linkedin_Id_Count__c, Facebook_Id_Count__c, Twitter_Username_Count__c, Total_Phone_Numbers__c, Total_Emails__c FROM Propensity_Personas__r ORDER BY Name ASC)
+                        FROM Propensity_Assessment__c #{where} ORDER BY Name__c ASC")
+  
+  data = []
+  
+  assessments.each_with_index do |record, index|
+    data.push({id: record.Id, name: record.Name__c, accounts_found: record.Accounts_Found__c, last_edit: record.Last_Enriched__c, created_date: record.CreatedDate})
+  end
+  
+  puts "ALL LISTS"
+  puts data
+  
+  render :json => data and return
+end
+#-------------------------------------
+# Campaigns
+#-------------------------------------
+if params[:campaigns].present?
+
+  where = "WHERE Active_Cohort__c = true AND ((User__c = '#{current_user_id}' AND Workspace__c = '#{current_user_org_id}') OR ( Workspace__c = '#{current_user_org_id}' AND Private__c = false))"
+  # where = "WHERE ((User__c = '#{@current_user.Id}' AND Workspace__c = '#{@current_user.Organization__c}') OR ( Workspace__c = '#{@current_user.Organization__c}' AND Private__c = false))"
+
+  campaigns = a__query("Select Id, Name, Cohort_Number__c, Status__c, Budget__c, Start_Date__c, End_Date__c, Goal__c, Marketing_Channels__c, Sales_Channels__c, 
+  Audience__c, Audience__r.Name, Audience__r.Assessment_Name__c, Audience_Type__c, Current_Day__c, Playbook__r.Name, 
+  Playbook__c, LastModifiedDate 
+  FROM Propensity_ABM_Campaign__c #{where}")
+  
+  campaigns_data = []
+
+  campaigns.each_with_index do |record, index|
+    campaigns_data.push({id: record.Id, name: record.Name, status: record.Status__c, playbook: record.Playbook__r.Name})
+  end
+
+  render :json => campaigns_data and return
+end
+
+#-------------------------------------
+# Single Campaign Data
+#-------------------------------------
+if params[:campaign].present? && params[:campaign_id].present?
+  where = "WHERE Id = '#{params[:campaign_id]}' AND (User__c = '#{current_user_id}' OR (Workspace__c = '#{current_user_org_id}' AND Private__c = false))"
+    
+  campaign = a__query("Select Id, Name, Warmth_Model__c, Status__c, Budget__c, Last_Launch_Date__c, Cohort_Number__c, Start_Date__c, End_Date__c, Goal__c, Marketing_Channels__c, Sales_Channels__c, Industry__c,
+  Audience__c, Audience__r.Name, Audience__r.Assessment_Name__c, Audience_Type__c, Current_Day__c, Playbook__r.Name, Accounts_To_Target__c, Cohort_Start_Date__c, Cohort_End_Date__c, Cohort_Planned_End_Date__c,
+  Accounts_Engaged__c, Sales_Qualified_Opps__c, New_Opps_Won__c, New_Revenue__c, Time_To_Value__c, Playbook__c, LastModifiedDate, Pipeline_Potential__c,
+  (SELECT Name, Type__c, Status__c, Click_URL__c, Call_To_Action__c, Subject__c, Body_Text_Only__c, Body_AI_Response__c, Day__c, Category__c, Planned_Start_Date__c, Planned_End_Date__c FROM Propensity_ABM_Campaign_Plays__r WHERE Active__c = true ORDER BY Type__c DESC),
+  (SELECT Status__c, Propensity_Checklist_Item__r.Name, Propensity_Checklist_Item__r.Description__c, Propensity_Checklist_Item__r.Action_Button_Label__c, 
+  Propensity_Checklist_Item__r.Action_Button_URL__c, Propensity_Checklist_Item__r.Video_URL__c FROM Propensity_Checklist_Status__r ORDER BY Propensity_Checklist_Item__r.Order__c ASC)
+  FROM Propensity_ABM_Campaign__c #{where}")
+  
+  puts "CAMPAIGN"
+  puts campaign.to_json
+  
+  cohorts = a__query("SELECT Buying_Circle__c, Total_Returned__c FROM Propensity_Cohort__c WHERE ABM_Campaign__c = '#{params[:campaign_id]}'")
+  
+  if campaign.first.present?
+    audience_id = campaign.first['Audience__c']
+    buying_circles = a__query("SELECT Name, Counts_Completed__c, Enriched__c, Parent_Buying_Circle__c, Total__c FROM Propensity_Persona__c WHERE Assessment__c = '#{audience_id}'")
+    
+    plays =  campaign.first.Propensity_ABM_Campaign_Plays__r
+    plays_data = []
+    plays.each do |play|
+      plays_data.push({
+        name: play.Name,
+        type: play.Type__c,
+        subject: play.Subject__c,
+        category: play.Category__c,
+        click_url: play.Click_URL__c,
+        call_to_action: play.Call_To_Action__c,
+        status: play.Status__c,
+        planned_start: play.Planned_Start_Date__c,
+        planned_end: play.Planned_End_Date__c,
+        body: play.Body_Text_Only__c,
+        buying_circles: buying_circles
+      })
+    end
+  end
+  
+  
+  puts "COHORTS"
+  puts cohorts.to_json
+  
+  
+  render :json => {campaign: campaign, plays: plays_data, buying_circles: buying_circles, cohorts: cohorts} and return
+  
+end
+
+#-------------------------------------
+# Single In-Market Account List
+#-------------------------------------
+if params[:single_list].present?
+  start_time = Time.now
+  @bucket = 'propensity'
+  client = aws_connection
+  s3 = Aws::S3::Resource.new
+  bucket = s3.bucket(@bucket)
+  authenticate
+  @sales_nav_list = false
+  @signal_filter = [["","-None-"]]
+  @summary = {}
+  # @company_name = ""
+  @total_accounts_count = 0
+  @new_accounts = ""
+  @top_adjacent_signal = ""
+  @top_competitive_signal = ""
+  @top_industry = ""
+  @top_location = ""
+  @list_name = ""
+  @total_accounts_found = 0
+  @sync_ready = false
+  @enriched = false
+  @accounts_count = 0
+  @total_pages = 0
+  @top_100 = false
+  @uploaded_list = false
+  page = params[:page].to_i
+  old_record = false
+  
+  where = "WHERE Id = '#{params[:id]}' AND (Email__c = '#{addapptation_user}' OR Additional_Emails__c LIKE '%#{addapptation_user}%' OR User__c = '#{current_user_id}' OR (Workspace__c = '#{current_user_org_id}' AND Private__c = false))"
+  
+  assessments = a__query("Select Id, Name, Last_Enrichment_Date_Full__c, Sales_Nav_List__c, Name__c, Last_Enriched__c, Uploaded_File_Location__c, Accounts_Found__c, AWS_File_Location__c,
+                        Adjacent_Topics__c, Audience_Roles__c, Company_Name__c, Competitive_Topics__c, Contact__c, Digital_Marketing__c, CreatedDate, 
+                        Email__c, First_Name__c, Growth_Rate__c, Job_Titles__c, Last_Name__c, Min_Time_In_Business__c, Qualifying_Leads__c, Social_Media_Activity__c, 
+                        Target_Company_Revenue__c, Target_Company_Size__c, Target_Country__c, Target_Industry__c, Using_Intent_Data__c, Uploaded_List__c
+                        FROM Propensity_Assessment__c #{where}")
+  
+    assessments.each do |assessment|
+    @uploaded_list = assessment.Uploaded_List__c.present?
+    old_record = assessment.CreatedDate.to_date < "2023-04-01".to_date
+    @total_accounts_found = assessment.Accounts_Found__c.to_i
+    summary_assessment_id = ""
+    assessment_id = ""
+    @summary = {}
+    files = []
+    assessment_location = "5_CustomerAssessments/#{assessment.Company_Name__c}/20"
+    if assessment.AWS_File_Location__c.present?
+      assessment_id = assessment.AWS_File_Location__c
+    end
+    
+    if !assessment_id.present?
+      puts "FILE LOCATION: #{assessment_location} - #{(Time.now - start_time).to_i} seconds"
+      bucket.objects({prefix: assessment_location}).each_with_index do |obj, index|
+        current_date = obj.key.split("5_CustomerAssessments/#{assessment.Company_Name__c}/").last.split("/").first.to_date
+        if (assessment_date.nil? || assessment_date == current_date) && obj.key.include?("#{assessment.Id}") && obj.key.include?("--Summary.json")
+          
+          resp = client.get_object(bucket: @bucket, key: obj.key)
+          @summary = a__parse(resp.body.read)          
+          
+          assessment_id = obj.key.split("--Summary.json").first
+          # summary_assessment_id = obj.key
+          assessment_date = current_date
+          
+        end
+      end
+    else
+      summary_assessment_id = "#{assessment_id}--Summary.json"
+      resp = client.get_object(bucket: @bucket, key: summary_assessment_id)
+      @summary = a__parse(resp.body.read)          
+    end
+
+    
+    
+    recently_retrieved = false
+    
+    if assessment_id.present?
+      
+      if assessment.Last_Enrichment_Date_Full__c.present?
+        puts "START SEARCHING FOR PREVIOUS WEEK LIST"
+        puts "ASSESSMENT KEY: #{assessment_id}"
+        
+        
+          bucket.objects({prefix: assessment_id}).each do |obj|
+            if obj.key.include?("--Part ") 
+                files.push(obj.key)
+            end
+          end
+      end
+      
+      if files.count == 0
+        puts "START SEARCHING FOR TOP 100 LIST"
+        @top_100 = true
+
+        bucket.objects({prefix: assessment_id + "--Top_100.json"}).each do |obj|
+          if obj.key.include?("--Top_100")
+            files.push(obj.key)
+          end
+        end        
+      end
+    end
+    
+    puts "FILES - #{files.count} - #{(Time.now - start_time).to_i} seconds"
+
+    if files.count > 0
+      @total_accounts_count = @summary["total_accounts"]
+      @new_accounts = @summary["new_accounts"]
+      begin
+        @top_adjacent_signal = @summary["best_adjacent_signals"].sort_by {|_key, value| value}.reverse.first.first
+      rescue
+        @top_adjacent_signal = "N/A"
+      end
+      begin
+        @top_competitive_signal = @summary["best_competitive_signals"].sort_by {|_key, value| value}.reverse.first.first
+      rescue
+        @top_competitive_signal = "N/A"
+      end
+      begin
+        @top_industry = @summary["best_industries"].sort_by {|_key, value| value}.reverse.first.first
+      rescue
+        @top_industry = "N/A"      
+      end
+      begin
+        @top_location = @summary["best_locations"].sort_by {|_key, value| value}.reverse.first.first      
+      rescue
+        @top_location = "N/A"      
+      end
+    end
+
+    signals_used = []
+    files.each_with_index do |file_name, index|
+      resp = client.get_object(bucket: @bucket, key: file_name)
+      results = a__parse(resp.body.read)
+      if @top_100 == false
+        results_list = results["results"]
+      else
+        results_list = results
+      end
+        results_list = results_list.to_json
+       data = {
+         name: "test",
+         totalAccounts: @total_accounts_found,
+         topAdjacentSignal: @top_adjacent_signal,
+         topCompetitiveSignal: @top_competitive_signal,
+         results: results_list
+         
+       }
+    end  
+  end ### assessments.each do |assessment|
+  render :json => data and return
+end
+#-------------------------------------
+# Intent Topics
+#-------------------------------------
+if params[:intent_topics].present?
+  build_redis
+  redis_results = @redis.get "propensity_intent_index"
+  redis_results_themes = @redis.get "propensity_intent_themes"
+  redis_results_competitors = @redis.get "propensity_intent_competitors"
+  redis_results_categories = @redis.get "propensity_intent_categories"
+
+  if redis_results.present? && !params[:reset_intent_index].present?
+    existing_index = a__parse(redis_results)
+    @intentTopics = a__parse(redis_results)
+    @themes = a__parse(redis_results_themes)
+    @competitors = a__parse(redis_results_competitors)
+    @categories = a__parse(redis_results_categories)
+    
+  else
+
+    response = HTTParty.get(@topics_cdn)
+    @intentTopics = []
+    @competitors = []
+    @themes = []
+    @categories = []
+
+    if response.present? && response.body.present?
+      data = JSON.parse(response.body)
+      data.each do |resp| 
+        hash = {}
+        resp.each{|k,v| hash[k.gsub(' ','_')] = v}
+        if resp["Theme"] == 'Company'
+          @competitors.push(hash)
+        end
+        if @themes.exclude?(resp["Theme"])
+         @themes.push(resp["Theme"])
+        end
+        if @categories.exclude?(resp["Category"])
+         @categories.push(resp["Category"])
+        end
+        @intentTopics.push(hash)
+      end
+    end
+    # @intentTopics.sort_by! { |hash| hash["Topic_Name"] }
+    @intentTopics.sort_by! do |hash|
+      if hash["Topic_Name"].match(/^[a-zA-Z]/)
+        [0, hash["Topic_Name"].downcase]
+      else
+        [1, hash["Topic_Name"].downcase]
+      end
+    end
+    # @competitors.sort_by! { |hash| hash["Topic_Name"] }
+    @competitors.sort_by! do |hash|
+      if hash["Topic_Name"].match(/^[a-zA-Z]/)
+        [0, hash["Topic_Name"].downcase]
+      else
+        [1, hash["Topic_Name"].downcase]
+      end
+    end
+    
+    @redis.set "propensity_intent_index", @intentTopics.to_json
+    @redis.expire "propensity_intent_index", (86400 * 7) ### 86400 = 24 hours  
+  
+    @redis.set "propensity_intent_competitors", @competitors.to_json
+    @redis.expire "propensity_intent_competitors", (86400 * 7) ### 86400 = 24 hours  
+  
+    @redis.set "propensity_intent_themes", @themes.to_json
+    @redis.expire "propensity_intent_themes", (86400 * 7) ### 86400 = 24 hours  
+    
+    @redis.set "propensity_intent_categories", @categories.to_json
+    @redis.expire "propensity_intent_categories", (86400 * 7) ### 86400 = 24 hours   
+  end
+  render :json => {themes: @themes, intent_topics: @intentTopics } and return
+end
+#-------------------------------------
+# Workspaces
+#-------------------------------------
+if params[:workspaces].present?
+  records = a__query("SELECT Id, Name, (SELECT Id, Role__c, User__r.Active__c, User__c, User__r.Name, User__r.addapptation_Id__c FROM Organization_Users__r) 
+  FROM a_Organization__c WHERE Id IN (SELECT Organization__c FROM a_Organization_User__c WHERE User__c = '#{current_user_id}' AND Status__c = 'Active')  ORDER BY Name ASC")
+  existing_orgs = []
+  
+  render :json => records and return
+end
+#-------------------------------------
+# Connections
+#-------------------------------------
+if params[:connections].present?
+  type_query = params[:type_query].present? ? " AND Type__c = '#{params[:type_query]}'" : ""
+  records = a__query("Select Id, Type__c, Options__c, Refresh_Token__c, Access_Token__c, CreatedDate FROM a_User_Access_Credential__c WHERE User__r.addapptation_Id__c = '#{current_user_id}' #{type_query} ORDER BY Type__c")
+  
+  render :json => records and return
+end
+#-------------------------------------
+# Users Query
+#-------------------------------------
+if params[:users].present?
+  where = ''
+  if params[:user_status].blank? || params[:user_status] == "active"
+    where = "AND User__r.Active__c = true"
+  elsif params[:user_status] == "inactive"
+    where = "AND User__r.Active__c != true"
+  end
+records = a__query("SELECT Id, Organization__c, Organization__r.Auth_UUID__c, Organization__r.Name, Role__c, 
+      User__r.Active__c, User__c, User__r.Name, User__r.addapptation_Id__c, User__r.Billing_Contact__c 
+    FROM a_Organization_User__c 
+    WHERE Organization__c = '#{current_user_org_id}' #{where} ORDER BY Role__c")
+    puts "USERS"
+    puts records.to_json
+  render :json => records and return
+end

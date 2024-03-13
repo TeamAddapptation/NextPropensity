@@ -1,11 +1,12 @@
 "use client";
-import { useReactTable, getCoreRowModel, flexRender, getPaginationRowModel, getSortedRowModel } from "@tanstack/react-table";
+import { useReactTable, getCoreRowModel, flexRender, getPaginationRowModel, getSortedRowModel, Pagination } from "@tanstack/react-table";
 import { useMemo, useState } from "react";
 import { ArrowUp, ArrowDown } from "react-bootstrap-icons";
 import { formatDate } from "@/app/utilities/helpers";
 
 function PlaysTable({ plays, selectPlay, editMode }) {
 	const [sorting, setSorting] = useState([]);
+	const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 50 });
 	const data = useMemo(() => plays, [plays]);
 
 	function statusHandler(info) {
@@ -91,8 +92,9 @@ function PlaysTable({ plays, selectPlay, editMode }) {
 		getCoreRowModel: getCoreRowModel(),
 		getPaginationRowModel: getPaginationRowModel(),
 		getSortedRowModel: getSortedRowModel(),
-		state: { sorting: sorting },
+		state: { sorting, pagination },
 		onSortingChange: setSorting,
+		onPaginationChange: setPagination,
 	});
 
 	return (

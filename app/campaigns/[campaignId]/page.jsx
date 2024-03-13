@@ -2,6 +2,7 @@ import { getCampaignData } from "@/app/utilities/CampaignData";
 import CohortHistory from "../components/CohortHistory";
 import ConnectedAudience from "../components/ConnnectedAudience";
 import ConnectedBuyingCircles from "../components/ConnectedBuyingCircles";
+import PlaysPreview from "../components/PlaysPreview";
 import Loading from "@/app/loading";
 
 export default async function Campaign({ params }) {
@@ -11,7 +12,9 @@ export default async function Campaign({ params }) {
 	return (
 		<div>
 			<div className='flex mb-4 gap-5'>
-				<div className='w-3/5 flex flex-col gap-5'></div>
+				<div className='w-3/5 flex flex-col gap-5'>
+					<PlaysPreview campaign={campaignObj.campaign[0]} />
+				</div>
 				<div className='w-2/5 flex flex-col gap-5'>
 					<div className='divide-y divide-gray-200 rounded-lg bg-white shadow'>
 						<div className='px-4 py-5 sm:px-6'>
@@ -22,7 +25,7 @@ export default async function Campaign({ params }) {
 							<ConnectedBuyingCircles buyingCircles={campaignObj.buying_circles} />
 						</div>
 					</div>
-					<CohortHistory campaign={campaignObj} />
+					{/* <CohortHistory campaign={campaignObj} /> */}
 				</div>
 			</div>
 		</div>
